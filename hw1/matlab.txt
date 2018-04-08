@@ -1,0 +1,88 @@
+% Keep digit precision
+format long g
+
+% Get train set and put into matrix
+filepath = 'C:\Users\GWCP\Documents\CMPS242_Machine_Learning\hw1\train.txt'
+train_set = csvread(filepath)
+
+% Get x and t Nx1 matrices out of train_set
+x = train_set(:,1)
+t = train_set(:,2)
+
+% Randomize indexes
+rand_idx = randperm(100)
+rand_idx = rand_idx(:)
+
+% Randomize Nx1 matrices
+x = x(rand_idx)
+t = t(rand_idx)
+
+% Tranpose x matrix
+x = transpose(x)
+
+% Create 10xN matrix
+% Multiplying each element in each row to the power of N from 0-9
+X = [ x.^0; x.^1; x.^2; x.^3; x.^4; x.^5; x.^6; x.^7; x.^8; x.^9 ]
+
+% Create lambda array values
+% exp(-4) equal to 1 * e(^4)
+lambda = [0, exp(-4), exp(-3), exp(-2), exp(-1), 1, 2, 5, 10, 20, 50, 100];
+
+% Create identity matrix
+for fold=1:10
+    if fold == 1
+        X_train = X(:, [11:100]);
+        T_train = t([11:100],:);
+        X_valid = X(:, [1:10]);
+        T_valid = t([1:10],:);
+    elseif fold == 10
+        X_train = X(:, [1:fold*10-10]); 
+        T_train = t([1:fold*10-10], :);
+        X_valid = X(:, [91:100]);
+        T_valid = t([91:100], :);
+    else
+        X_train = X(:, [1:(fold-1)*10 fold*10+1:100]);
+        T_train = t([1:(fold-1)*10 fold*10+1:100], :);
+        X_valid = X(:, [fold*10-9:fold*10]);
+        T_valid = t([fold*10-9:fold*10], :);
+    end
+    
+    for i=1:length(lambda)
+        w_star(i) = inv(X_train * transpose(X_train) + lambda(i) * eye(10)) * X_train * T_train;
+        error(fold, i) = sum(transpose(X_valid) * w_star - T_valid).^2;
+        error_lambda(fold, i) = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2 + lambda(i) * (0.5) * norm(w_star);
+    end
+end
+
+for k=1:length(lambda)
+    error_mean = sum(error)./10.0;
+    error_mean_lambda = sum(error)./10.0;
+end
+
+% Find min error and index to obtain lambda value
+[M,I] = min(error_mean);
+[M,I] = min(error_mean_lambda);
+
+% Get test set
+filepath = 'C:\Users\GWCP\Documents\CMPS242_Machine_Learning\hw1\test.txt'
+test_set = csvread(filepath)
+
+% Get and parse x_test and t_test Nx1 matrices out of test_set
+x_test = test_set(:,1)
+t_test = test_set(:,2)
+
+x_test = transpose(x_test);
+
+% Create X_test and T_test matrices
+X_test = [ x_test.^0; x_test.^1; x_test.^2; x_test.^3; x_test.^4; x_test.^5; x_test.^6; x_test.^7; x_test.^8; x_test.^9 ];
+T_test = t_test;
+
+% Find min w_star value
+final_w_star = inv(X * transpose(X) + lambda(I) * eye(10)) * X * t;
+error_test = sum(transpose(X_test) * final_w_star - T_test).^2;
+error_test_lambada = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2 + lambda(I) * (0.5) * norm(w_star);
+
+for k=1:length(lambda)
+    final_w_star_plot(k) = inv(X * transpose(X) + lambda(k) * eye(10)) * X * t;
+    
+end
