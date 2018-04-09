@@ -108,3 +108,19 @@ xlabel('ln(\lambda)')
 ylabel('E_{RMS}')
 legend('Training','Test')
 hold off
+
+% Getting best w_star value with min lambda
+coef = final_w_star;
+
+% Plot w* training with train data points
+f = @(x) coef(10)*x^9 + coef(9)*x^8 + coef(8)*x^7 + coef(7)*x^6 + coef(6)*x^5 + coef(5)*x^4 + coef(4)*x^3 + coef(3)*x^2 + coef(2)*x^1 +  coef(1);
+
+hold on
+plot(x_test,t_test,'oy')
+plot(x,t,'ob')
+fplot(f, 'k')
+title('10-Fold Fitting Cruve w/ Train and Test Data Points')
+xlabel('x')
+ylabel('t')
+legend('Test Data Points','Train Data Points', 'Fitting Cruve')
+hold off
