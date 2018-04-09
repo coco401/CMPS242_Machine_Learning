@@ -49,19 +49,16 @@ for fold=1:10
     
     for i=1:length(lambda)
         w_star = inv(X_train * transpose(X_train) + lambda(i) * eye(10)) * X_train * T_train;
-        error(fold, i) = sum(transpose(X_valid) * w_star - T_valid).^2;
-        error_lambda(fold, i) = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2 + lambda(i) * (0.5) * norm(w_star);
+        error(fold, i) = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2;
     end
 end
 
 for k=1:length(lambda)
     error_mean = sum(error)./10.0;
-    error_mean_lambda = sum(error)./10.0;
 end
 
 % Find min error and index to obtain lambda value
 [M,I] = min(error_mean);
-[M,I] = min(error_mean_lambda);
 
 % Get test set
 filepath = 'C:\Users\GWCP\Documents\CMPS242_Machine_Learning\hw1\test.txt'
@@ -80,19 +77,20 @@ T_test = t_test;
 
 % Find min w_star value
 final_w_star = inv(X * transpose(X) + lambda(I) * eye(10)) * X * t;
-error_test = sum(transpose(X_test) * final_w_star - T_test).^2;
-error_test_lambada = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2 + lambda(I) * (0.5) * norm(w_star);
+error_test = (0.5) *  sum(transpose(X_test) * final_w_star - T_test).^2;
 
 % Get Error Root Square Mean
 for k=1:length(lambda)
 
     % E_rms for test set
-    final_w_star_plot = inv(X * transpose(X) + lambda(k) * eye(10)) * X * t;
-    error_test(k) = sum(transpose(X_test) * final_w_star_plot - T_test).^2;
+    final_w_star_plot_test = inv(X * transpose(X) + lambda(k) * eye(10)) * X * t;
+    error_test(k) = (0.5) * sum(transpose(X_test) * final_w_star_plot_test - T_test).^2;
     e_rms_test(k) = sqrt(2*error_test(k)/ 5000);
     
     % E_rms for train set
-    e_rms_train(k) = sqrt(2*error_mean(k)/ 100);
+    final_w_star_plot_train = inv(X * transpose(X) + lambda(k) * eye(10)) * X * t;
+    error_train(k) = (0.5) * sum(transpose(X) * final_w_star_plot_train - t).^2;
+    e_rms_train(k) = sqrt(2*error_train(k)/ 100);
 end
 
 % Converting lambda values into logarithmic function for plotting
