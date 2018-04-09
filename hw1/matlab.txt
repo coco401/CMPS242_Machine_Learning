@@ -48,7 +48,7 @@ for fold=1:10
     end
     
     for i=1:length(lambda)
-        w_star(i) = inv(X_train * transpose(X_train) + lambda(i) * eye(10)) * X_train * T_train;
+        w_star = inv(X_train * transpose(X_train) + lambda(i) * eye(10)) * X_train * T_train;
         error(fold, i) = sum(transpose(X_valid) * w_star - T_valid).^2;
         error_lambda(fold, i) = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2 + lambda(i) * (0.5) * norm(w_star);
     end
@@ -82,7 +82,26 @@ final_w_star = inv(X * transpose(X) + lambda(I) * eye(10)) * X * t;
 error_test = sum(transpose(X_test) * final_w_star - T_test).^2;
 error_test_lambada = (0.5) * sum(transpose(X_valid) * w_star - T_valid).^2 + lambda(I) * (0.5) * norm(w_star);
 
+% Get Error Root Square Mean
 for k=1:length(lambda)
-    final_w_star_plot(k) = inv(X * transpose(X) + lambda(k) * eye(10)) * X * t;
+    % E_rms for test set
+    final_w_star_plot = inv(X * transpose(X) + lambda(k) * eye(10)) * X * t;
+    error_test(k) = sum(transpose(X_test) * final_w_star_plot - T_test).^2;
+    e_rms_test(k) = sqrt(2*error_test(k)/ 5000);
     
+    % E_rms for train set
+    e_rms_train(k) = sqrt(2*error_mean(k)/ 100);
 end
+
+for p=1:length(lambda)
+    test_lm(p) = log(lambda(p));
+end
+
+figure
+plot(test_lm, e_rms_train, '-o')
+hold on
+plot(test_lm, e_rms_test, '-o')
+xlabel('ln(\lambda)')
+ylabel('Error RMS')
+legend('error train','error test')
+hold off
