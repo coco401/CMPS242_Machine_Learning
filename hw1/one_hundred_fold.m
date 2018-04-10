@@ -26,25 +26,25 @@ X = [ x.^0; x.^1; x.^2; x.^3; x.^4; x.^5; x.^6; x.^7; x.^8; x.^9 ]
 
 % Create lambda array values
 % exp(-4) equal to 1 * e(^4)
-lambda = [0, exp(-4), exp(-3), exp(-2), exp(-1), 1, 2, 5, 10, 20, 50, 100];
+lambda = [0, exp(-4), exp(-3), exp(-2), exp(-1), 1, 2, 3,4,5, 10, 20, 50, 100];
 
-% 10-fold Cross Validation
-for fold=1:10
+% 100-fold Leave-one-out algorithm
+for fold=1:100
     if fold == 1
-        X_train = X(:, [11:100]);
-        T_train = t([11:100],:);
-        X_valid = X(:, [1:10]);
-        T_valid = t([1:10],:);
-    elseif fold == 10
-        X_train = X(:, [1:fold*10-10]); 
-        T_train = t([1:fold*10-10], :);
-        X_valid = X(:, [91:100]);
-        T_valid = t([91:100], :);
+        X_train = X(:, [2:100]);
+        T_train = t([2:100],:);
+        X_valid = X(:, [1:1]);
+        T_valid = t([1:1],:);
+    elseif fold == 100
+        X_train = X(:, [1:99]); 
+        T_train = t([1:99], :);
+        X_valid = X(:, [99:100]);
+        T_valid = t([99:100], :);
     else
-        X_train = X(:, [1:(fold-1)*10 fold*10+1:100]);
-        T_train = t([1:(fold-1)*10 fold*10+1:100], :);
-        X_valid = X(:, [fold*10-9:fold*10]);
-        T_valid = t([fold*10-9:fold*10], :);
+        X_train = X(:, [1:(fold-1) fold+1:100]);
+        T_train = t([1:(fold-1) fold+1:100], :);
+        X_valid = X(:, [fold:fold]);
+        T_valid = t([fold:fold], :);
     end
     
     for i=1:length(lambda)
@@ -97,15 +97,15 @@ for p=1:length(lambda)
 end
 
 % Plot E_RMS and ln(lambda) for training and test set
-figure
-plot(test_lm, e_rms_train, '-o')
-hold on
-plot(test_lm, e_rms_test, '-o')
-title('Regularizaton: E_{RMS} vs ln(\lambda)')
-xlabel('ln(\lambda)')
-ylabel('E_{RMS}')
-legend('Training','Test')
-hold off
+%figure
+%plot(test_lm, e_rms_train, '-o')
+%hold on
+%plot(test_lm, e_rms_test, '-o')
+%title('Regularizaton: E_{RMS} vs ln(\lambda)')
+%xlabel('ln(\lambda)')
+%ylabel('E_{RMS}')
+%legend('Training','Test')
+%hold off
 
 % Getting best w_star value with min lambda
 coef = final_w_star;
@@ -117,7 +117,7 @@ hold on
 plot(x_test,t_test,'oy')
 plot(x,t,'ob')
 fplot(f, 'k')
-title('10-Fold Fitting Cruve w/ Train and Test Data Points')
+title('Leave One Out Method')
 xlabel('x')
 ylabel('t')
 legend('Test Data Points','Train Data Points', 'Fitting Cruve')

@@ -26,7 +26,7 @@ X = [ x.^0; x.^1; x.^2; x.^3; x.^4; x.^5; x.^6; x.^7; x.^8; x.^9 ]
 
 % Create lambda array values
 % exp(-4) equal to 1 * e(^4)
-lambda = [0, exp(-4), exp(-3), exp(-2), exp(-1), 1, 2, 5, 10, 20, 50, 100];
+lambda = [0, exp(-4), exp(-3), exp(-2), exp(-1), 1, 2, 3,4 ,5, 10, 20, 50, 100];
 
 % 10-fold Cross Validation
 for fold=1:10
@@ -76,6 +76,7 @@ T_test = t_test;
 % Find min w_star value
 final_w_star = inv(X * transpose(X) + lambda(I) * eye(10)) * X * t;
 error_test = (0.5) *  sum((transpose(X_valid) * final_w_star - T_valid).^2);
+error_test_result = (0.5) *  sum((transpose(X_test) * final_w_star - t_test).^2);
 
 % Get Error Root Square Mean
 for k=1:length(lambda)
@@ -96,29 +97,41 @@ for p=1:length(lambda)
     test_lm(p) = log(lambda(p));
 end
 
-% Plot E_RMS and ln(lambda) for training and test set
+% Plot Regularization - E_RMS and ln(lambda)
 figure
-plot(test_lm, e_rms_train, '-o')
+plot(test_lm, e_rms_test, '-or')
 hold on
-plot(test_lm, e_rms_test, '-o')
+plot(test_lm, e_rms_train, '-ob')
 title('Regularizaton: E_{RMS} vs ln(\lambda)')
 xlabel('ln(\lambda)')
 ylabel('E_{RMS}')
-legend('Training','Test')
+legend('Test','Training')
 hold off
 
 % Getting best w_star value with min lambda
 coef = final_w_star;
 
-% Plot w* training with train data points
+% Polynomial function 
 f = @(x) coef(10)*x^9 + coef(9)*x^8 + coef(8)*x^7 + coef(7)*x^6 + coef(6)*x^5 + coef(5)*x^4 + coef(4)*x^3 + coef(3)*x^2 + coef(2)*x^1 +  coef(1);
 
+% Plot 10-Fold Fitting Curve
+figure
 hold on
 plot(x_test,t_test,'oy')
 plot(x,t,'ob')
 fplot(f, 'k')
-title('10-Fold Fitting Cruve w/ Train and Test Data Points')
+title('10-Fold Fitting Curve')
 xlabel('x')
 ylabel('t')
 legend('Test Data Points','Train Data Points', 'Fitting Cruve')
+hold off
+
+% Plot Error Mean Bar
+err=std(error)
+figure
+hold on
+errorbar(test_lm, error_mean ,err , '-ob')
+title('Mean Error vs ln(\lambda)')
+xlabel('ln(\lambda)')
+ylabel('Mean Error')
 hold off
